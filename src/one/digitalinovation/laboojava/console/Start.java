@@ -1,11 +1,11 @@
 package one.digitalinovation.laboojava.console;
 
-import one.digitalinovation.laboojava.basedados.Banco;
-import one.digitalinovation.laboojava.entidade.*;
-import one.digitalinovation.laboojava.negocio.ClienteNegocio;
-import one.digitalinovation.laboojava.negocio.PedidoNegocio;
-import one.digitalinovation.laboojava.negocio.ProdutoNegocio;
-import one.digitalinovation.laboojava.utilidade.LeitoraDados;
+import one.digitalinovation.laboojava.dba.Bank;
+import one.digitalinovation.laboojava.entity.*;
+import one.digitalinovation.laboojava.business.ClientBusiness;
+import one.digitalinovation.laboojava.business.OrderBusiness;
+import one.digitalinovation.laboojava.business.ProductBusiness;
+import one.digitalinovation.laboojava.utility.DataReader;
 
 import java.util.Optional;
 
@@ -15,13 +15,13 @@ import java.util.Optional;
  */
 public class Start {
 
-    private static Cliente clienteLogado = null;
+    private static Client loggedInClient = null;
 
-    private static Banco banco = new Banco();
+    private static Bank bank = new Bank();
 
-    private static ClienteNegocio clienteNegocio = new ClienteNegocio(banco);
-    private static PedidoNegocio pedidoNegocio = new PedidoNegocio(banco);
-    private static ProdutoNegocio produtoNegocio = new ProdutoNegocio(banco);
+    private static ClientBusiness clientBusiness = new ClientBusiness(bank);
+    private static OrderBusiness orderBusiness = new OrderBusiness(bank);
+    private static ProductBusiness productBusiness = new ProductBusiness(bank);
 
     /**
      * Método utilitário para inicializar a aplicação.
@@ -29,86 +29,106 @@ public class Start {
      */
     public static void main(String[] args) {
 
+        Client firstClient = new Client();
+        firstClient.setName("Fulano");
+        firstClient.setId("123456789011");
+        bank.addClient(firstClient);
+
         System.out.println("Bem vindo ao e-Compras");
 
-        String opcao = "";
+        String option = "";
 
         while(true) {
 
-            if (clienteLogado == null) {
+            if (loggedInClient == null) {
 
                 System.out.println("Digite o cpf:");
 
-                String cpf = "";
-                cpf = LeitoraDados.lerDado();
+                String id = "";
+                id = DataReader.readData();
 
-                identificarUsuario(cpf);
+                identifyUser(id);
             }
 
-            System.out.println("Selecione uma opção:");
-            System.out.println("1 - Cadastrar Livro");
-            System.out.println("2 - Excluir Livro");
-            //TODO Desafio: Consultar Livro(nome)
-            System.out.println("3 - Cadastrar Caderno");
-            System.out.println("4 - Excluir Caderno");
-            //TODO Desafio: Consultar Caderno(matéria)
-            System.out.println("5 - Fazer pedido");
-            System.out.println("6 - Excluir pedido");
-            //TODO Desafio: Consultar Pedido(código)
-            System.out.println("7 - Listar produtos");
-            System.out.println("8 - Listar pedidos");
-            System.out.println("9 - Deslogar");
-            System.out.println("10 - Sair");
+            System.out.println("Select an option:");
+            System.out.println("1 - Register Book");
+            System.out.println("2 - Delete Book");
+            System.out.println("3 - Register Notebook");
+            System.out.println("4 - Delete Notebook");
+            System.out.println("5 - Make Order");
+            System.out.println("6 - Delete Order");
+            System.out.println("7 - List Products");
+            System.out.println("8 - List Orders");
+            System.out.println("9 - Add Client");
+            System.out.println("10 - Delete Client");
+            System.out.println("11 - List Client");
+            System.out.println("12 - Logout");
+            System.out.println("13 - Exit");
 
-            opcao = LeitoraDados.lerDado();
+            option = DataReader.readData();
 
-            switch (opcao) {
+            switch (option) {
                 case "1":
-                    Livro livro = LeitoraDados.lerLivro();
-                    produtoNegocio.salvar(livro);
+                    Book book = DataReader.readBook();
+                    productBusiness.save(book);
                     break;
                 case "2":
-                    System.out.println("Digite o código do livro");
-                    String codigoLivro = LeitoraDados.lerDado();
-                    produtoNegocio.excluir(codigoLivro);
+                    System.out.println("Type the code of the book.");
+                    String codeBook = DataReader.readData();
+                    productBusiness.delete(codeBook);
                     break;
                 case "3":
-                    //TODO Cadastrar Caderno
+                    Notebook notebook = DataReader.readNotebook();
+                    productBusiness.save(notebook);
                     break;
                 case "4":
-                    //TODO Excluir Caderno
+                    System.out.println("Type the code of the notebook.");
+                    String codeNotebook = DataReader.readData();
+                    productBusiness.delete(codeNotebook);
                     break;
                 case "5":
-                    Pedido pedido = LeitoraDados.lerPedido(banco);
-                    Optional<Cupom> cupom = LeitoraDados.lerCupom(banco);
+                    Order order = DataReader.readOrder(bank);
+                    Optional<Coupon> coupon = DataReader.readCoupon(bank);
 
-                    if (cupom.isPresent()) {
-                        pedidoNegocio.salvar(pedido, cupom.get());
+                    if (coupon.isPresent()) {
+                        orderBusiness.save(order, coupon.get());
                     } else {
-                        pedidoNegocio.salvar(pedido);
+                        orderBusiness.save(order);
                     }
                     break;
                 case "6":
-                    System.out.println("Digite o código do pedido");
-                    String codigoPedido = LeitoraDados.lerDado();
-                    pedidoNegocio.excluir(codigoPedido);
+                    System.out.println("Type the code of the order.");
+                    String codeOrder = DataReader.readData();
+                    orderBusiness.delete(codeOrder);
                     break;
                 case "7":
-                    produtoNegocio.listarTodos();
+                    productBusiness.listAll();
                     break;
                 case "8":
-                    //TODO Listar todos os Pedidos
+                    orderBusiness.listAll();
                     break;
                 case "9":
-                    System.out.println(String.format("Volte sempre %s!", clienteLogado.getNome()));
-                    clienteLogado = null;
+                    Client client = DataReader.readClient();
+                    clientBusiness.save(client);
                     break;
                 case "10":
-                    System.out.println("Aplicação encerrada.");
+                    System.out.println("Type the id of the Client that you want to remove.");
+                    String codeClient = DataReader.readData();
+                    clientBusiness.delete(codeClient);
+                    break;
+                case "11":
+                    clientBusiness.listAll();
+                    break;
+                case "12":
+                    System.out.println(String.format("Come back soon %s!", loggedInClient.getName()));
+                    loggedInClient = null;
+                    break;
+                case "13":
+                    System.out.println("Application closed.");
                     System.exit(0);
                     break;
                 default:
-                    System.out.println("Opção inválida.");
+                    System.out.println("Invalid option.");
                     break;
             }
         }
@@ -116,19 +136,19 @@ public class Start {
 
     /**
      * Procura o usuário na base de dados.
-     * @param cpf CPF do usuário que deseja logar na aplicação
+     * @param id CPF do usuário que deseja logar na aplicação
      */
-    private static void identificarUsuario(String cpf) {
+    private static void identifyUser(String id) {
 
-        Optional<Cliente> resultado = clienteNegocio.consultar(cpf);
+        Optional<Client> result = clientBusiness.consult(id);
 
-        if (resultado.isPresent()) {
+        if (result.isPresent()) {
 
-            Cliente cliente = resultado.get();
-            System.out.println(String.format("Olá %s! Você está logado.", cliente.getNome()));
-            clienteLogado = cliente;
+            Client client = result.get();
+            System.out.println(String.format("Hello %s! You are logged in.", client.getName()));
+            loggedInClient = client;
         } else {
-            System.out.println("Usuário não cadastrado.");
+            System.out.println("User not found.");
             System.exit(0);
         }
     }
