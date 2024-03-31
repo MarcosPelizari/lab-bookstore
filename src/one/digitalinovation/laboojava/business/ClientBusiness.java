@@ -32,7 +32,7 @@ public class ClientBusiness {
      */
     public Optional<Client> consult(String id) {
 
-        for (Client clients: dataBank.getClientList()) {
+        for (Client clients: dataBank.getClient()) {
             if (clients.getId().equals(id)) {
                 return Optional.of(clients);
             }

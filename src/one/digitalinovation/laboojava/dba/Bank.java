@@ -47,7 +47,6 @@ public class Bank {
         coupons.add(new Coupon("CUPOM7", 7));
     }
 
-    public List<Client> getClientList() {return client;}
 
     public Client[] getClient() {
         return client.toArray(new Client[client.size()]);
